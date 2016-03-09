@@ -1,0 +1,46 @@
+<?php
+
+use Drupal\Core\Database\Query\AlterableInterface;
+
+/**
+ * Implements hook_query_alter().
+ */
+function rng_conflict_query_alter(AlterableInterface $query) {
+  if ($query->hasTag('rng_register')) {
+    /** @var \Drupal\rng\Plugin\EntityReferenceSelection\RNGSelectionBase $handler */
+    $handler = $query->getMetaData('entity_reference_selection_handler');
+    $event = $handler->eventMeta->getEvent();
+    $storage = \Drupal::entityTypeManager()->getStorage($event->getEntityTypeId());
+    $event_query = $storage->getQuery();
+
+    foreach (['field_date', 'field_track'] as $field_name) {
+      $value = $event->{$field_name}->value;
+      $event_query->condition($field_name, $value);
+    }
+
+    // Similar event entity ID's.
+    $ids = $event_query->execute();
+
+    // Unset this event.
+    unset($ids[$event->id()]);
+
+    /** @var \Drupal\rng\EventManagerInterface $event_manager */
+    $event_manager = \Drupal::service('rng.event_manager');
+
+    $registrant_ids = [];
+    foreach ($ids as $id) {
+      $event = $storage->load($id);
+      $event_meta = $event_manager->getMeta($event);
+      /** @var \Drupal\rng\RegistrantInterface $registrant */
+      foreach ($event_meta->getRegistrants($handler->entityType->id()) as $registrant) {
+        if ($identity = $registrant->getIdentity()) {
+          $registrant_ids[$identity->id()] = $identity->id();
+        }
+      }
+    }
+
+    if ($registrant_ids) {
+      $query->condition('base_table.' . $handler->entityType->getKey('id'), $registrant_ids, 'NOT IN');
+    }
+  }
+}

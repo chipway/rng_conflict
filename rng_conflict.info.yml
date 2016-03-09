@@ -1,0 +1,7 @@
+name: RNG Conflict (Experimental)
+type: module
+description: 'Prevent registrations when a registrant is registered for a similar event.'
+package: RNG
+core: 8.x
+dependencies:
+  - rng
