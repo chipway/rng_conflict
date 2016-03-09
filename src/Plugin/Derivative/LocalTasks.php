@@ -64,7 +64,6 @@ class LocalTasks extends DeriverBase implements ContainerDeriverInterface {
           'title' => t('Conflicts'),
           'route_name' => "rng.event.$entity_type.conflicts",
           'parent_id' => 'rng.local_tasks:' . $event_default,
-          'weight' => 20,
         );
       }
     }

@@ -28,7 +28,7 @@ class ConflictForm extends FormBase {
   protected $eventManager;
 
   /**
-   * Constructs a new MessageActionForm object.
+   * Constructs a new ConflictForm object.
    *
    * @param \Drupal\rng\EventManagerInterface $event_manager
    *   The RNG event manager.
@@ -57,17 +57,13 @@ class ConflictForm extends FormBase {
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state, RouteMatchInterface $route_match = NULL, $event = NULL) {
-
-
     /** @var EntityInterface $event_entity */
     $event_entity = $route_match->getParameter($event);
 
     $storage = \Drupal::entityTypeManager()->getStorage($event_entity->getEntityTypeId());
     $query = $storage->getQuery();
 
-    $values = [];
     foreach (['field_date', 'field_track'] as $field_name) {
-      $values[$field_name] = $event_entity->{$field_name}->value;
       $value = $event_entity->{$field_name}->value;
       $query->condition($field_name, $value);
     }
@@ -77,12 +73,6 @@ class ConflictForm extends FormBase {
 
     // Unset this event.
     unset($ids[$event_entity->id()]);
-//
-//    foreach ($ids as $id) {
-//      $event = $storage->load($id);
-//      $event_meta = $this->eventManager->getMeta($event);
-//      $registrant_query = $event_meta->buildRegistrantQuery('user');
-//    }
 
     $form['help']['#plain_text'] = $this->t('A registrant will not be able to register for this event if they are also registered for the following events:');
 
@@ -93,7 +83,7 @@ class ConflictForm extends FormBase {
     ];
 
     foreach ($ids as $id) {
-      $row = [];;
+      $row = [];
       $event = $storage->load($id);
       $row['entity']['#markup'] = $event->link();
       $form['events'][] = $row;

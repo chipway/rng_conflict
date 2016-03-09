@@ -1,6 +1,6 @@
 Prevent registrations when a registrant is registered for a similar event.
 
-Copyright (C) 2016 Daniel Phin (@dpi)
+Copyright (C) 2016 [Daniel Phin](http://dpi.id.au) ([@dpi](https://www.drupal.org/u/dpi))
 
 # License
 
