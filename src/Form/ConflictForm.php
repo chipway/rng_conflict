@@ -10,10 +10,10 @@ namespace Drupal\rng_conflict\Form;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Form\FormBase;
 use Drupal\rng\EventManagerInterface;
+use Drupal\rng_conflict\RngConflictProviderInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Render\Element;
-use Drupal\Core\Routing\RouteMatchInterface;
 
 /**
  * Configure event conflict settings.
@@ -28,13 +28,23 @@ class ConflictForm extends FormBase {
   protected $eventManager;
 
   /**
+   * The RNG conflict provider.
+   *
+   * @var \Drupal\rng_conflict\RngConflictProviderInterface
+   */
+  protected $rngConflictProvider;
+
+  /**
    * Constructs a new ConflictForm object.
    *
    * @param \Drupal\rng\EventManagerInterface $event_manager
    *   The RNG event manager.
+   * @param \Drupal\rng_conflict\RngConflictProviderInterface $conflict_provider
+   *   The RNG conflict provider.
    */
-  public function __construct(EventManagerInterface $event_manager) {
+  public function __construct(EventManagerInterface $event_manager, RngConflictProviderInterface $conflict_provider) {
     $this->eventManager = $event_manager;
+    $this->rngConflictProvider = $conflict_provider;
   }
 
   /**
@@ -42,7 +52,8 @@ class ConflictForm extends FormBase {
    */
   public static function create(ContainerInterface $container) {
     return new static(
-      $container->get('rng.event_manager')
+      $container->get('rng.event_manager'),
+      $container->get('rng_conflict.conflict_provider')
     );
   }
 
@@ -57,20 +68,6 @@ class ConflictForm extends FormBase {
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state, EntityInterface $rng_event = NULL) {
-    $storage = \Drupal::entityTypeManager()->getStorage($rng_event->getEntityTypeId());
-    $query = $storage->getQuery();
-
-    foreach (['field_date', 'field_track'] as $field_name) {
-      $value = $rng_event->{$field_name}->value;
-      $query->condition($field_name, $value);
-    }
-
-    // Similar event entity ID's.
-    $ids = $query->execute();
-
-    // Unset this event.
-    unset($ids[$rng_event->id()]);
-
     $form['help']['#plain_text'] = $this->t('A registrant will not be able to register for this event if they are also registered for the following events:');
 
     $form['events'] = [
@@ -79,9 +76,8 @@ class ConflictForm extends FormBase {
       '#empty' => $this->t('No conflicting events found.'),
     ];
 
-    foreach ($ids as $id) {
+    foreach ($this->rngConflictProvider->getSimilarEvents($rng_event) as $event) {
       $row = [];
-      $event = $storage->load($id);
       $row['entity']['#markup'] = $event->toLink()->toString();
       $form['events'][] = $row;
     }
