@@ -51,8 +51,9 @@ class RngConflictProvider implements RngConflictProviderInterface {
    * @inheritdoc
    */
   public function getSimilarEvents(EntityInterface $event) {
+    $entity_type_id = $event->getEntityTypeId();
     $storage = $this->entityTypeManager
-      ->getStorage($event->getEntityTypeId());
+      ->getStorage($entity_type_id);
     $event_query = $storage->getQuery();
 
     foreach (['field_date', 'field_track'] as $field_name) {
@@ -80,7 +81,13 @@ class RngConflictProvider implements RngConflictProviderInterface {
       }
     }
 
-    // Similar event entity ID's.
+    $bundle_key = $this->entityTypeManager
+      ->getDefinition($entity_type_id)
+      ->getKey('bundle');
+    if ($bundle_key !== FALSE) {
+      $event_query->condition($bundle_key, $event->bundle());
+    }
+
     $ids = $event_query->execute();
 
     // Unset this event.
