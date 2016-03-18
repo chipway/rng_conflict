@@ -95,22 +95,40 @@ class RngConflictProvider implements RngConflictProviderInterface {
   public function alterQuery(AlterableInterface &$query) {
     /** @var \Drupal\rng\Plugin\EntityReferenceSelection\RNGSelectionBase $handler */
     $handler = $query->getMetaData('entity_reference_selection_handler');
-    $event = $handler->eventMeta->getEvent();
 
+    $event = $handler->eventMeta->getEvent();
+    $registrant_entity_type_id = $handler->entityType->id();
+    $similar_events = $this->getSimilarEvents($event);
+
+    if ($registrant_ids = $this->getRegistrantsIdsFromEvents($similar_events, $registrant_entity_type_id)) {
+      $query->condition('base_table.' . $handler->entityType->getKey('id'), $registrant_ids, 'NOT IN');
+    }
+  }
+
+  /**
+   * Get entity IDs of registrants for events.
+   *
+   * @param \Drupal\Core\Entity\EntityInterface[] $events
+   *   An array of event entity.
+   * @param $registrant_entity_type_id
+   *   A registrant entity type ID.
+   *
+   * @return integer[]
+   *   An array of registrant entity ID's.
+   */
+  protected function getRegistrantsIdsFromEvents(array $events, $registrant_entity_type_id) {
     $registrant_ids = [];
-    foreach ($this->getSimilarEvents($event) as $similar_event) {
-      $event_meta = $this->eventManager->getMeta($similar_event);
-      /** @var \Drupal\rng\RegistrantInterface $registrant */
-      foreach ($event_meta->getRegistrants($handler->entityType->id()) as $registrant) {
+
+    foreach ($events as $event) {
+      $event_meta = $this->eventManager->getMeta($event);
+      foreach ($event_meta->getRegistrants($registrant_entity_type_id) as $registrant) {
         if ($identity = $registrant->getIdentity()) {
           $registrant_ids[$identity->id()] = $identity->id();
         }
       }
     }
 
-    if ($registrant_ids) {
-      $query->condition('base_table.' . $handler->entityType->getKey('id'), $registrant_ids, 'NOT IN');
-    }
+    return $registrant_ids;
   }
 
 }
