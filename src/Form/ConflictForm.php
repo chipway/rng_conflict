@@ -68,7 +68,9 @@ class ConflictForm extends FormBase {
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state, EntityInterface $rng_event = NULL) {
-    $form['help']['#plain_text'] = $this->t('A registrant will not be able to register for this event if they are also registered for any one of the following events:');
+    $form['help']['#markup'] = $this->t('A registrant will not be able to register for %label if they are also registered for any one of the following:', [
+      '%label' => $rng_event->label(),
+    ]);
 
     $form['events'] = [
       '#type' => 'table',
