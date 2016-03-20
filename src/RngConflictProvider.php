@@ -56,27 +56,34 @@ class RngConflictProvider implements RngConflictProviderInterface {
       ->getStorage($entity_type_id);
     $event_query = $storage->getQuery();
 
-    foreach (['field_date', 'field_track'] as $field_name) {
-      /** @var \Drupal\Core\Field\FieldItemList $field_item_list */
-      $field_item_list = $event->{$field_name};
+    foreach ($this->getSets($event->getEntityTypeId(), $event->bundle()) as $set) {
+      // @todo handle multiple sets properly.
+      foreach ($set as $field) {
+        $field_name = $field['field_name'];
 
-      // Cancel if any fields are empty.
-      $field_item_list->filterEmptyItems();
-      if (!count($field_item_list)) {
-        return [];
-      }
+        /** @var \Drupal\Core\Field\FieldItemList $field_item_list */
+        $field_item_list = $event->{$field_name};
 
-      $columns = $field_item_list->getFieldDefinition()
-        ->getFieldStorageDefinition()
-        ->getColumns();
+        // Cancel if any fields are empty.
+        $field_item_list->filterEmptyItems();
+        if (!count($field_item_list)) {
+          return [];
+        }
 
-      foreach ($field_item_list->getValue() as $item) {
-        // @todo how to handle multiple item values.
-        // Remove fields that will not be saved. (eg. Creating an entity will
-        // add a temporary '_attributes' column. etc.
-        $item = array_intersect_key($item, $columns);
-        foreach ($item as $column => $value) {
-          $event_query->condition($field_name . '.' . $column, $value);
+        $columns = $field_item_list->getFieldDefinition()
+          ->getFieldStorageDefinition()
+          ->getColumns();
+
+        foreach ($field_item_list->getValue() as $item) {
+          // Remove fields that will not be saved. (eg. Creating an entity will
+          // add a temporary '_attributes' column. etc.
+          $item = array_intersect_key($item, $columns);
+          foreach ($item as $column => $value) {
+            $event_query->condition($field_name . '.' . $column, $value);
+          }
+
+          // @todo how to handle multiple item values.
+          break;
         }
       }
     }
@@ -113,6 +120,26 @@ class RngConflictProvider implements RngConflictProviderInterface {
   }
 
   /**
+   * @inheritdoc
+   */
+  public function getSets($entity_type_id, $bundle) {
+    $event_type = $this->eventManager->eventType($entity_type_id, $bundle);
+
+    $sets = [];
+    foreach ($event_type->getThirdPartySetting('rng_conflict', 'conflicts', []) as $set_config) {
+      $set = [];
+      foreach ($set_config as $field) {
+        if (isset($field['field_name'])) {
+          $set[] = $field;
+        }
+      }
+      $sets[] = $set;
+    }
+
+    return $sets;
+  }
+
+    /**
    * Get entity IDs of registrants for events.
    *
    * @param \Drupal\Core\Entity\EntityInterface[] $events

@@ -36,4 +36,17 @@ interface RngConflictProviderInterface {
    */
   public function alterQuery(AlterableInterface &$query);
 
+  /**
+   * Get conflict sets for an event type bundle.
+   *
+   * @param string $entity_type_id
+   *   An event type' entity type ID.
+   * @param string $bundle
+   *   An event type' bundle.
+   *
+   * @return array
+   *   An array of conflict sets.
+   */
+  public function getSets($entity_type_id, $bundle);
+
 }
