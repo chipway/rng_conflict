@@ -27,16 +27,12 @@ Things may not work. Your site may break and/or explode. Use with caution.
 
 # Installation
 
-Make sure you are running RNG 8.x-1.0-rc4 or later (not released as of this
-writing). Otherwise run RNG -dev release if 8.x-1.0-rc4 is not out yet.
+Make sure you are running RNG 8.x-1.0-rc4 or later.
 
 # Configuration
 
- 1. Go to `rng_conflict.module`, change values `['field_date', 'field_track']`
-    to whatever combination of fields you like. Make sure the values are field
-    IDs.
- 2. Go to `ConflictForm.php`, do the same with `['field_date', 'field_track']`
-    as previously mentioned.
+ 1. Go to Administration » Structure » Event types
+ 2. Select fields used to calculate similar (conflicting) events.
  3. Go to the 'Conflicts' tab located inside an event to see conflicting events.
-    Registrants will be prevented from registering for the viewed event, and the
-    events listed on the 'Conflicts' tab.
+    Registrants will be prevented from registering for the viewed event if they 
+    are also registered for the listed events.
