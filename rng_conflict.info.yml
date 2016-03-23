@@ -1,4 +1,4 @@
-name: RNG Conflict (Experimental)
+name: RNG Conflict
 type: module
 description: 'Prevent registrations when a registrant is registered for a similar event.'
 package: RNG
