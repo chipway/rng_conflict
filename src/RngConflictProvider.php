@@ -63,6 +63,9 @@ class RngConflictProvider implements RngConflictProviderInterface {
 
         /** @var \Drupal\Core\Field\FieldItemList $field_item_list */
         $field_item_list = $event->{$field_name};
+        if (!isset($field_item_list)) {
+          return [];
+        }
 
         // Cancel if any fields are empty.
         $field_item_list->filterEmptyItems();
