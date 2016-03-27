@@ -4,4 +4,4 @@ description: 'Prevent registrations when a registrant is registered for a simila
 package: RNG
 core: 8.x
 dependencies:
-  - rng
+  - rng (>= 8.x-1.0-rc4)
