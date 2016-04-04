@@ -75,18 +75,19 @@ class EventTypeConflictForm extends EntityForm {
       $event_type->getEventBundle()
     );
 
+    $default_value = [];
     foreach ($sets as $set) {
       // @todo Allow configuration UI for multiple sets.
-      $default_value = [];
       foreach ($set as $field) {
         $default_value[] = $field['field_name'];
       }
-      $form['field_set'] = [
-        '#type' => 'checkboxes',
-        '#options' => [],
-        '#default_value' => $default_value,
-      ];
     }
+
+    $form['field_set'] = [
+      '#type' => 'checkboxes',
+      '#options' => [],
+      '#default_value' => $default_value,
+    ];
 
     $field_definitions = $this->entityFieldManager
       ->getFieldDefinitions($event_type->getEventEntityTypeId(), $event_type->getEventBundle());
