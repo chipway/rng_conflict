@@ -56,7 +56,12 @@ class RngConflictProvider implements RngConflictProviderInterface {
       ->getStorage($entity_type_id);
     $event_query = $storage->getQuery();
 
-    foreach ($this->getSets($event->getEntityTypeId(), $event->bundle()) as $set) {
+    $sets = $this->getSets($event->getEntityTypeId(), $event->bundle());
+    if (!count($sets)) {
+      return [];
+    }
+
+    foreach ($sets as $set) {
       // @todo handle multiple sets properly.
       foreach ($set as $field) {
         $field_name = $field['field_name'];
