@@ -106,7 +106,10 @@ class RngConflictProvider implements RngConflictProviderInterface {
     $ids = $event_query->execute();
 
     // Unset this event.
-    unset($ids[$event->id()]);
+    $key = array_search($event->id(), $ids);
+    if (FALSE !== $key) {
+      unset($ids[$key]);
+    }
 
     return $storage->loadMultiple($ids);
   }
