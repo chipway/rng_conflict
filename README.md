@@ -18,13 +18,6 @@ You should have received a copy of the GNU General Public License along
 with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-# Notice
-
-This module is UNSUPPORTED in ALL WAYS imaginable. Do not expect any upgrade
-paths.
-
-Things may not work. Your site may break and/or explode. Use with caution.
-
 # Installation
 
 Make sure you are running RNG 8.x-1.0-rc4 or later.
@@ -32,7 +25,9 @@ Make sure you are running RNG 8.x-1.0-rc4 or later.
 # Configuration
 
  1. Go to Administration » Structure » Event types
- 2. Select fields used to calculate similar (conflicting) events.
- 3. Go to the 'Conflicts' tab located inside an event to see conflicting events.
-    Registrants will be prevented from registering for the viewed event if they 
-    are also registered for the listed events.
+ 2. In the operations dropdown next to an event type, select the
+    "Conflicts" link.
+ 3. Select fields used to calculate similar (conflicting) events.
+ 4. Go to the 'Conflicts' tab located inside an event to see conflicting
+    events. Registrants will be prevented from registering for the
+    viewed event if they are also registered for the listed events.
