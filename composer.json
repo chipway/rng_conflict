@@ -1,0 +1,19 @@
+{
+  "name": "drupal/rng_conflict",
+  "description": "Prevent registrations when a registrant is registered for a similar event.",
+  "type": "drupal-module",
+  "homepage": "http://drupal.org/project/rng_conflict",
+  "support": {
+    "issues": "https://github.com/dpi/rng_conflict/issues",
+    "source": "https://github.com/dpi/rng_conflict"
+  },
+  "authors": [
+    {
+      "name": "Daniel Phin",
+      "email": "pro@danielph.in",
+      "homepage": "http://danielph.in",
+      "role": "Maintainer"
+    }
+  ],
+  "license": "GPL-2.0+"
+}
